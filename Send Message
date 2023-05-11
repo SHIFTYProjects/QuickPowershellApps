@@ -1,0 +1,5 @@
+#Send a Message to A remote computer and have it appear on their screen for 1 minute.
+
+$name = read-host "Enter computer name "
+$msg = read-host "Enter your message "
+Invoke-WmiMethod -Path Win32_Process -Name Create -ArgumentList "msg * $msg" -ComputerName $name | Out-Null
