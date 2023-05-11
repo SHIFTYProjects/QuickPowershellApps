@@ -6,9 +6,15 @@ Quick Powershell Code Snippits
 
 Includes Many code Snippets and Powershell Gui apps to do some basic tasks.
 
-ReportLoggedOnUser - Retrieves the User info for the currently logged on user on a remote computer
+**ReportLoggedOnUser** - Retrieves the User info for the currently logged on user on a remote computer
 
-Base64 Image Encoder - Encodes a selected image to Base64
+**GetSerialNumber** - Gets the serial number (Service tag) of your computer
+
+**SendMessage** - Sends a message to a remote PC that appears on their screen for 1 Minute
+
+**Base64 Image Encoder**
+Encodes a selected image to Base64
+
 ![image](https://github.com/SHIFTYProjects/QuickPowershellApps/assets/115837132/51c460f7-0d4f-4766-89c1-b9f3dd12db36)
 
 
