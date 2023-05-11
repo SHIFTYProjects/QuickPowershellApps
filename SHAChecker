@@ -1,0 +1,56 @@
+#Checks the SHA of a file
+
+add-type -AssemblyName System.Windows.Forms
+
+$form = New-Object System.Windows.Forms.Form
+$form.StartPosition = 'CenterScreen'
+$form.Size = New-Object System.Drawing.Size(500,240)#Horizontal, Vertical
+$form.Text = "FILE SHA CHECKER"
+$form.BackColor = "white"
+$button = New-Object System.Windows.Forms.Button
+$form.Controls.Add($button)
+
+
+
+
+$button.Text = 'Get file'
+$button.Location = '10,110'#Horizontal, Vertical
+
+# label
+$Label = New-Object System.Windows.Forms.label
+$Label.Location = New-Object System.Drawing.Size(7,40)#Horizontal, Vertical
+$Label.Size = New-Object System.Drawing.Size(330,35)
+$Label.BackColor = "Transparent"
+$Label.ForeColor = "black"
+$Label.Text = "PLEASE SELECT A FILE TO GET HASH"
+$Form.Controls.Add($Label)
+
+####BUTTONS####
+
+$button.add_Click({
+    $ofd = New-Object system.windows.forms.Openfiledialog
+    #$ofd.Filter =  'PDFs (*.pdf)|*.pdf' 
+    $script:filename = 'Not found'
+    if($ofd.ShowDialog() -eq 'Ok'){
+        $script:filename = $textbox.Text = $ofd.FileName
+    }    
+})
+
+$buttonOK = New-Object System.Windows.Forms.Button
+$form.Controls.Add($buttonOK)
+$buttonOK.Text = 'Ok'
+$buttonOK.Location = '10,140'#Horizontal, Vertical
+$buttonOK.DialogResult = 'OK'
+
+$textbox = New-Object System.Windows.Forms.TextBox
+$form.Controls.Add($textbox)
+$textbox.Location = '100,110'#Horizontal, Vertical
+$textbox.Width += 50
+
+$form.ShowDialog()
+$filename
+
+#COMMAND
+
+Get-FileHash $textbox.Text | Format-List
+Write-Host
