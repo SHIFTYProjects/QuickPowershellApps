@@ -1,0 +1,7 @@
+#Gets the Serial Number of Local PC
+
+Get-WmiObject win32_bios | select Serialnumber
+
+Get-ComputerInfo | select OsRegisteredUser, OsOrganization, OsName, CsSystemFamily, CSModel
+
+Get-ComputerInfo | select OsRegisteredUser, OsOrganization, OsName, OsInstallDate, CsSystemFamily, CSModel, BiosSeralNumber
