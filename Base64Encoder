@@ -1,0 +1,90 @@
+#Base64 Image Encoder - Encodes a standard image into Base64 Text
+#
+#
+#
+#
+##########################################################################
+#
+#Project Name: Base64 Encoder 
+#Summary: Convert Image to Base 64 for embedding into powershell scripts
+#AUTHOR: Josh Hochstettler
+#Project
+#
+#########################################################################
+
+
+
+
+
+
+###################################################################################################################
+add-type -AssemblyName System.Windows.Forms
+
+$form = New-Object System.Windows.Forms.Form
+$form.StartPosition = 'CenterScreen'
+$form.Size = New-Object System.Drawing.Size(500,240)#Horizontal, Vertical
+$form.Text = "Base64 Image Converter"
+$form.BackColor = "white"
+$button = New-Object System.Windows.Forms.Button
+$form.Controls.Add($button)
+
+
+
+
+$button.Text = 'Get file'
+$button.Location = '10,110'#Horizontal, Vertical
+
+# label
+$Label = New-Object System.Windows.Forms.label
+$Label.Location = New-Object System.Drawing.Size(7,40)#Horizontal, Vertical
+$Label.Size = New-Object System.Drawing.Size(330,35)
+$Label.BackColor = "Transparent"
+$Label.ForeColor = "blue"
+$Label.Text = "PLEASE SELECT A FILE"
+$Form.Controls.Add($Label)
+
+
+# Bottomlabel
+$BottomLabel = New-Object System.Windows.Forms.label
+$BottomLabel.Location = New-Object System.Drawing.Size(150,160)#Horizontal, Vertical
+$BottomLabel.Size = New-Object System.Drawing.Size(330,35)
+$BottomLabel.BackColor = "Transparent"
+$BottomLabel.ForeColor = "darkgreen"
+$BottomLabel.Text = "Generated Files are saved to your Desktop"
+$Form.Controls.Add($BottomLabel)
+
+####BUTTONS####
+
+$button.add_Click({
+    $ofd = New-Object system.windows.forms.Openfiledialog
+    #$ofd.Filter =  'PDFs (*.pdf)|*.pdf' 
+    $script:filename = 'Not found'
+    if($ofd.ShowDialog() -eq 'Ok'){
+        $script:filename = $textbox.Text = $ofd.FileName
+    }    
+})
+
+$buttonOK = New-Object System.Windows.Forms.Button
+$form.Controls.Add($buttonOK)
+$buttonOK.Text = 'Ok'
+$buttonOK.Location = '10,140'#Horizontal, Vertical
+$buttonOK.DialogResult = 'OK'
+
+$textbox = New-Object System.Windows.Forms.TextBox
+$form.Controls.Add($textbox)
+$textbox.Location = '100,110'#Horizontal, Vertical
+$textbox.Width += 250
+
+$form.ShowDialog()
+#$filename
+
+#COMMAND
+
+#Get-FileHash $textbox.Text | Format-List
+
+$OUTPUTLOCATION = [Environment]::GetFolderPath("Desktop") + "\ENCODED IMAGE.txt"
+
+$Content = Get-Content -Path $textbox.Text -Encoding Byte
+$Base64 = [System.Convert]::ToBase64String($Content) 
+$Base64 | Out-File $OUTPUTLOCATION
+
