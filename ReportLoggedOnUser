@@ -1,0 +1,5 @@
+#Find out who is logged onto a remote PC on your network
+
+$computername = Read-Host "Enter Machine Name or IP address"
+$UN = Get-WmiObject Win32_ComputerSystem -Computername $computername
+"Logged On User: " + $UN.Username
