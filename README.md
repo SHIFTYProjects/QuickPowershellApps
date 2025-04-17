@@ -15,6 +15,9 @@ Includes Many code Snippets and Powershell Gui apps to do some basic tasks.
 **Base64 Image Encoder**
 Encodes a selected image to Base64
 
+**IP Settings Retriever** - Gathers the ip config, subnet, gateway and generates an html report from a list of servers.
+
+
 ![image](https://github.com/SHIFTYProjects/QuickPowershellApps/assets/115837132/51c460f7-0d4f-4766-89c1-b9f3dd12db36)
 
 
