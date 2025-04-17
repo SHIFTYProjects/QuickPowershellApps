@@ -1,0 +1,94 @@
+Add-Type -AssemblyName System.Windows.Forms
+
+# Ask user for computer list file
+$openFileDialog = New-Object System.Windows.Forms.OpenFileDialog
+$openFileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*"
+$openFileDialog.Title = "Select a file with a list of computer names"
+$null = $openFileDialog.ShowDialog()
+
+if (-not $openFileDialog.FileName) {
+    Write-Host "No file selected. Exiting." -ForegroundColor Red
+    return
+}
+
+$computers = Get-Content $openFileDialog.FileName
+
+# Prepare output folder
+$reportFolder = "$([Environment]::GetFolderPath('Desktop'))\IPConfig Reports"
+if (-not (Test-Path $reportFolder)) {
+    New-Item -Path $reportFolder -ItemType Directory | Out-Null
+}
+
+$reportData = @()
+
+foreach ($computer in $computers) {
+    Write-Host "Checking $computer..." -ForegroundColor Cyan
+
+    # Optional ping check first
+    if (-not (Test-Connection -ComputerName $computer -Count 1 -Quiet)) {
+        $reportData += [PSCustomObject]@{
+            ComputerName    = $computer
+            Description     = "Offline"
+            IPAddress       = "Ping failed"
+            SubnetMask      = "-"
+            DefaultGateway  = "-"
+            MACAddress      = "-"
+            DNS             = "-"
+        }
+        continue
+    }
+
+    # Try CIM first, then WMI fallback
+    try {
+        $adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -ComputerName $computer -Filter "IPEnabled = TRUE" -ErrorAction Stop
+    } catch {
+        try {
+            $adapters = Get-WmiObject -Class Win32_NetworkAdapterConfiguration -ComputerName $computer | Where-Object { $_.IPEnabled }
+        } catch {
+            $adapters = $null
+        }
+    }
+
+    if ($adapters) {
+        foreach ($adapter in $adapters) {
+            $reportData += [PSCustomObject]@{
+                ComputerName    = $computer
+                Description     = $adapter.Description
+                IPAddress       = ($adapter.IPAddress -join ", ")
+                SubnetMask      = ($adapter.IPSubnet -join ", ")
+                DefaultGateway  = ($adapter.DefaultIPGateway -join ", ")
+                MACAddress      = $adapter.MACAddress
+                DNS             = ($adapter.DNSServerSearchOrder -join ", ")
+            }
+        }
+    } else {
+        $reportData += [PSCustomObject]@{
+            ComputerName    = $computer
+            Description     = "Error or Access Denied"
+            IPAddress       = "Could not retrieve data"
+            SubnetMask      = "-"
+            DefaultGateway  = "-"
+            MACAddress      = "-"
+            DNS             = "-"
+        }
+    }
+}
+
+# Output HTML report
+$timestamp = Get-Date -Format "yyyy-MM-dd_HHmmss"
+$reportPath = Join-Path $reportFolder "IP_Report_$timestamp.html"
+
+$reportData | Sort-Object ComputerName | ConvertTo-Html -Title "IP Configuration Report" -Head @"
+<style>
+    body { font-family: Segoe UI, sans-serif; background: #f4f4f4; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #4CAF50; color: white; }
+    tr:nth-child(even) { background-color: #f9f9f9; }
+    tr:hover { background-color: #e6f7ff; }
+</style>
+<h2>IP Configuration Report</h2>
+<p>Generated: $(Get-Date)</p>
+"@ | Out-File -FilePath $reportPath -Encoding UTF8
+
+Start-Process $reportPath
